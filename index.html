@@ -1,0 +1,1041 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Tracker — Tu Plan</title>
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #0a0a0a;
+    --bg2: #111111;
+    --bg3: #1a1a1a;
+    --border: #222;
+    --accent: #c8a96e;
+    --accent2: #8b6f3e;
+    --text: #e8e8e8;
+    --text2: #888;
+    --text3: #444;
+    --red: #c0392b;
+    --green: #27ae60;
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'DM Sans', sans-serif;
+    min-height: 100vh;
+    padding-bottom: 80px;
+  }
+
+  /* HEADER */
+  header {
+    padding: 24px 20px 16px;
+    border-bottom: 1px solid var(--border);
+    position: sticky; top: 0;
+    background: var(--bg);
+    z-index: 100;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+  header h1 {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 28px;
+    letter-spacing: 3px;
+    color: var(--accent);
+  }
+  .fecha-hoy {
+    font-size: 12px;
+    color: var(--text2);
+    letter-spacing: 1px;
+    text-transform: uppercase;
+  }
+
+  /* NAV */
+  nav {
+    display: flex;
+    border-bottom: 1px solid var(--border);
+    position: sticky; top: 65px;
+    background: var(--bg);
+    z-index: 99;
+  }
+  nav button {
+    flex: 1;
+    padding: 14px 0;
+    background: none;
+    border: none;
+    color: var(--text2);
+    font-family: 'DM Sans', sans-serif;
+    font-size: 12px;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    cursor: pointer;
+    border-bottom: 2px solid transparent;
+    transition: all 0.2s;
+  }
+  nav button.active {
+    color: var(--accent);
+    border-bottom-color: var(--accent);
+  }
+
+  /* SECTIONS */
+  .section { display: none; padding: 20px; max-width: 600px; margin: 0 auto; }
+  .section.active { display: block; }
+
+  /* CARDS */
+  .card {
+    background: var(--bg2);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 20px;
+    margin-bottom: 16px;
+  }
+  .card-title {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 18px;
+    letter-spacing: 2px;
+    color: var(--accent);
+    margin-bottom: 16px;
+  }
+
+  /* INPUTS */
+  input, select {
+    background: var(--bg3);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    color: var(--text);
+    font-family: 'DM Sans', sans-serif;
+    font-size: 14px;
+    padding: 10px 14px;
+    width: 100%;
+    outline: none;
+    transition: border-color 0.2s;
+  }
+  input:focus, select:focus { border-color: var(--accent); }
+  input::placeholder { color: var(--text3); }
+
+  .input-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+    margin-bottom: 10px;
+  }
+  .input-row.three { grid-template-columns: 2fr 1fr 1fr; }
+
+  label {
+    display: block;
+    font-size: 11px;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    color: var(--text2);
+    margin-bottom: 6px;
+  }
+
+  /* BUTTONS */
+  .btn {
+    background: var(--accent);
+    color: #000;
+    border: none;
+    border-radius: 8px;
+    padding: 11px 20px;
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 16px;
+    letter-spacing: 2px;
+    cursor: pointer;
+    transition: opacity 0.2s;
+    width: 100%;
+    margin-top: 4px;
+  }
+  .btn:hover { opacity: 0.85; }
+  .btn.secondary {
+    background: var(--bg3);
+    color: var(--text2);
+    border: 1px solid var(--border);
+  }
+  .btn.danger { background: var(--red); color: #fff; }
+  .btn.small { padding: 7px 14px; font-size: 13px; width: auto; margin-top: 0; }
+
+  /* PESO CORPORAL */
+  .peso-display {
+    text-align: center;
+    padding: 20px 0;
+  }
+  .peso-num {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 64px;
+    color: var(--accent);
+    line-height: 1;
+  }
+  .peso-unit { font-size: 20px; color: var(--text2); }
+  .peso-diff {
+    font-size: 13px;
+    margin-top: 6px;
+  }
+  .peso-diff.baja { color: var(--green); }
+  .peso-diff.sube { color: var(--red); }
+  .peso-diff.igual { color: var(--text2); }
+
+  /* HISTORIAL PESO */
+  .historial-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 10px 0;
+    border-bottom: 1px solid var(--border);
+    font-size: 14px;
+  }
+  .historial-item:last-child { border-bottom: none; }
+  .historial-fecha { color: var(--text2); font-size: 12px; }
+  .historial-kg { font-family: 'Bebas Neue', sans-serif; font-size: 20px; color: var(--accent); }
+  .historial-diff { font-size: 12px; }
+
+  /* GRÁFICA SIMPLE */
+  .grafica-wrap {
+    overflow-x: auto;
+    padding-bottom: 8px;
+  }
+  canvas { display: block; }
+
+  /* GYM */
+  .ejercicio-block {
+    background: var(--bg3);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 14px;
+    margin-bottom: 10px;
+  }
+  .ejercicio-nombre {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 16px;
+    letter-spacing: 1px;
+    color: var(--text);
+    margin-bottom: 10px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+  .set-row {
+    display: flex;
+    gap: 8px;
+    align-items: center;
+    margin-bottom: 6px;
+    font-size: 13px;
+  }
+  .set-num {
+    color: var(--accent);
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 15px;
+    min-width: 28px;
+  }
+  .set-input {
+    width: 70px;
+    padding: 7px 10px;
+    font-size: 13px;
+  }
+  .set-x { color: var(--text2); font-size: 12px; }
+  .pr-badge {
+    background: var(--accent);
+    color: #000;
+    font-size: 10px;
+    font-family: 'Bebas Neue', sans-serif;
+    letter-spacing: 1px;
+    padding: 2px 7px;
+    border-radius: 4px;
+  }
+
+  /* SUPLEMENTOS */
+  .suplem-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 14px 0;
+    border-bottom: 1px solid var(--border);
+  }
+  .suplem-item:last-child { border-bottom: none; }
+  .suplem-nombre { font-size: 14px; font-weight: 500; }
+  .suplem-info { font-size: 12px; color: var(--text2); margin-top: 2px; }
+  .suplem-dias {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 22px;
+    text-align: right;
+  }
+  .suplem-dias.ok { color: var(--green); }
+  .suplem-dias.warn { color: var(--accent); }
+  .suplem-dias.alert { color: var(--red); }
+  .suplem-label { font-size: 10px; color: var(--text2); text-align: right; letter-spacing: 1px; text-transform: uppercase; }
+
+  /* TOAST */
+  .toast {
+    position: fixed;
+    bottom: 90px;
+    left: 50%;
+    transform: translateX(-50%) translateY(20px);
+    background: var(--accent);
+    color: #000;
+    padding: 10px 24px;
+    border-radius: 100px;
+    font-family: 'Bebas Neue', sans-serif;
+    letter-spacing: 2px;
+    font-size: 14px;
+    opacity: 0;
+    transition: all 0.3s;
+    pointer-events: none;
+    z-index: 999;
+    white-space: nowrap;
+  }
+  .toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+
+  /* BOTTOM NAV */
+  .bottom-nav {
+    position: fixed;
+    bottom: 0; left: 0; right: 0;
+    background: var(--bg2);
+    border-top: 1px solid var(--border);
+    display: flex;
+    z-index: 200;
+  }
+  .bottom-nav button {
+    flex: 1;
+    padding: 14px 0 10px;
+    background: none;
+    border: none;
+    color: var(--text2);
+    font-size: 10px;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    cursor: pointer;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 4px;
+    transition: color 0.2s;
+  }
+  .bottom-nav button.active { color: var(--accent); }
+  .bottom-nav button svg { width: 20px; height: 20px; }
+
+  .empty-state {
+    text-align: center;
+    padding: 40px 0;
+    color: var(--text3);
+    font-size: 13px;
+    letter-spacing: 1px;
+  }
+
+  .delete-btn {
+    background: none;
+    border: none;
+    color: var(--text3);
+    cursor: pointer;
+    font-size: 16px;
+    padding: 4px;
+    transition: color 0.2s;
+  }
+  .delete-btn:hover { color: var(--red); }
+
+  .semana-badge {
+    display: inline-block;
+    background: var(--bg3);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    padding: 4px 12px;
+    font-size: 11px;
+    color: var(--text2);
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    margin-bottom: 12px;
+  }
+
+  .tipo-btn, .var-btn {
+    background: var(--bg3);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    color: var(--text2);
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 16px;
+    letter-spacing: 2px;
+    padding: 10px;
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+  .tipo-btn.active, .var-btn.active {
+    background: var(--accent);
+    color: #000;
+    border-color: var(--accent);
+  }
+
+  .progresion-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 8px 0;
+    border-bottom: 1px solid var(--border);
+    font-size: 13px;
+  }
+  .progresion-row:last-child { border-bottom: none; }
+  .prog-fecha { color: var(--text2); font-size: 11px; }
+  .prog-valor { font-family: 'Bebas Neue', sans-serif; font-size: 18px; color: var(--accent); }
+</style>
+</head>
+<body>
+
+<header>
+  <h1>TRACKER</h1>
+  <div class="fecha-hoy" id="fechaHoy"></div>
+</header>
+
+<!-- SECTIONS -->
+<div class="section active" id="sec-peso">
+  <div class="card">
+    <div class="card-title">Peso Corporal</div>
+    <div class="peso-display">
+      <div class="peso-num" id="pesoActual">—</div>
+      <div class="peso-unit">kg</div>
+      <div class="peso-diff" id="pesoDiff"></div>
+    </div>
+    <div style="margin-bottom:12px;">
+      <label>Peso de hoy (kg)</label>
+      <input type="number" id="inputPeso" step="0.1" placeholder="65.7" style="font-size:18px;padding:14px;text-align:center;">
+    </div>
+    <button class="btn" onclick="guardarPeso()">GUARDAR PESO DE HOY</button>
+  </div>
+
+  <div class="card">
+    <div class="card-title">Progresión</div>
+    <div class="grafica-wrap">
+      <canvas id="graficaPeso" height="140"></canvas>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-title">Historial</div>
+    <div id="historialPeso">
+      <div class="empty-state">Sin registros aún</div>
+    </div>
+  </div>
+</div>
+
+<div class="section" id="sec-gym">
+  <div class="card">
+    <div class="card-title">Sesión de Hoy</div>
+
+    <div style="margin-bottom:14px;">
+      <label style="margin-bottom:8px;">Tipo de día</label>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;">
+        <button class="tipo-btn active" onclick="selTipo('Torso',this)" id="btn-torso">TORSO</button>
+        <button class="tipo-btn" onclick="selTipo('Limbs',this)" id="btn-limbs">LIMBS</button>
+      </div>
+    </div>
+
+    <div style="margin-bottom:14px;">
+      <label style="margin-bottom:8px;">Variante</label>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;">
+        <button class="var-btn active" onclick="selVar('A',this)" id="btn-a">A</button>
+        <button class="var-btn" onclick="selVar('B',this)" id="btn-b">B</button>
+      </div>
+    </div>
+
+    <div id="ejerciciosContainer"></div>
+    <button class="btn" onclick="guardarSesion()" style="margin-top:12px;">GUARDAR SESIÓN</button>
+  </div>
+
+  <div class="card">
+    <div class="card-title">Progresión por Ejercicio</div>
+    <div style="margin-bottom:12px;">
+      <select id="selectEjGrafica" onchange="renderGraficaEj()">
+        <option value="">— Elige ejercicio —</option>
+        <option>Cable Lateral Raise</option>
+        <option>Wide Grip Pulldown</option>
+        <option>Neutral Grip Incline Press</option>
+        <option>Machine Shoulder Press</option>
+        <option>Upper Back Row</option>
+        <option>Low to High Cable Fly</option>
+        <option>Preacher Curl</option>
+        <option>Reverse Curl</option>
+        <option>Cable Crunch</option>
+        <option>Tricep Pushdown</option>
+        <option>Leg Curl</option>
+        <option>Barbell Curl</option>
+        <option>Wrist Curl</option>
+        <option>Crunch con Peso</option>
+        <option>Hip Thrust</option>
+      </select>
+    </div>
+    <div class="grafica-wrap">
+      <canvas id="graficaEj" height="140"></canvas>
+    </div>
+    <div id="graficaEjEmpty" class="empty-state" style="display:none">Sin datos para este ejercicio</div>
+  </div>
+
+  <div class="card">
+    <div class="card-title">Historial Gym</div>
+    <div id="historialGym">
+      <div class="empty-state">Sin sesiones registradas</div>
+    </div>
+  </div>
+</div>
+
+<div class="section" id="sec-suplementos">
+  <div class="card">
+    <div class="card-title">Estado de Suplementos</div>
+    <div id="suplementosContainer"></div>
+  </div>
+
+  <div class="card">
+    <div class="card-title">Actualizar Stock</div>
+    <div style="margin-bottom:10px;">
+      <label>Suplemento</label>
+      <select id="selectSuplem">
+        <option value="whey">Evolution WP100 (Whey)</option>
+        <option value="creatina">Creatina Hero Sport</option>
+        <option value="miel">Miel Tía Ofilia</option>
+        <option value="omega3">Omega 3</option>
+        <option value="multivit">Multivitamínico</option>
+      </select>
+    </div>
+    <div style="margin-bottom:10px;">
+      <label>Porciones / gramos restantes</label>
+      <input type="number" id="inputStockSuplem" placeholder="ej: 42">
+    </div>
+    <button class="btn" onclick="actualizarSuplem()">ACTUALIZAR</button>
+  </div>
+</div>
+
+<!-- BOTTOM NAV -->
+<div class="bottom-nav">
+  <button class="active" onclick="cambiarSeccion('peso', this)">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 6h18M3 12h18M3 18h18"/></svg>
+    Peso
+  </button>
+  <button onclick="cambiarSeccion('gym', this)">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 4v16M18 4v16M6 8h12M6 16h12"/></svg>
+    Gym
+  </button>
+  <button onclick="cambiarSeccion('suplementos', this)">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M8 12h8M12 8v8"/></svg>
+    Suplementos
+  </button>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+// ===================== UTILS =====================
+const NS = 'tracker_v2_'
+const get = k => { try { return JSON.parse(localStorage.getItem(NS+k)) } catch { return null } }
+const set = (k, v) => localStorage.setItem(NS+k, JSON.stringify(v))
+
+function showToast(msg) {
+  const t = document.getElementById('toast')
+  t.textContent = msg
+  t.classList.add('show')
+  setTimeout(() => t.classList.remove('show'), 2200)
+}
+
+function fechaLegible(iso) {
+  const [y, m, d] = iso.split('-')
+  return `${d}/${m}/${y}`
+}
+
+function hoyISO() {
+  return new Date().toISOString().split('T')[0]
+}
+
+// ===================== INIT =====================
+document.addEventListener('DOMContentLoaded', () => {
+  // Fecha header
+  const dias = ['Domingo','Lunes','Martes','Miércoles','Jueves','Viernes','Sábado']
+  const meses = ['Ene','Feb','Mar','Abr','May','Jun','Jul','Ago','Sep','Oct','Nov','Dic']
+  const hoy = new Date()
+  document.getElementById('fechaHoy').textContent = `${dias[hoy.getDay()]} ${hoy.getDate()} ${meses[hoy.getMonth()]}`
+
+  // Init suplementos si no existen
+  if (!get('suplementos')) {
+    set('suplementos', {
+      whey:     { nombre: 'Evolution WP100', unidad: 'porciones', consumoDia: 1, restante: 42, lastDescuento: hoyISO() },
+      creatina: { nombre: 'Creatina Hero Sport', unidad: 'g', consumoDia: 5, restante: 250, lastDescuento: hoyISO() },
+      miel:     { nombre: 'Miel Tía Ofilia', unidad: 'g', consumoDia: 20, restante: 330, lastDescuento: hoyISO() },
+      omega3:   { nombre: 'Omega 3', unidad: 'cápsulas', consumoDia: 1, restante: 49, lastDescuento: hoyISO() },
+      multivit: { nombre: 'Multivitamínico', unidad: 'cápsulas', consumoDia: 1, restante: 57, lastDescuento: hoyISO() },
+    })
+  }
+  // Auto-descuento diario
+  descontarDiasTranscurridos()
+
+  renderPeso()
+  cargarSesion()
+  renderSuplem()
+})
+
+// ===================== SECCIONES =====================
+function cambiarSeccion(id, btn) {
+  document.querySelectorAll('.section').forEach(s => s.classList.remove('active'))
+  document.querySelectorAll('.bottom-nav button').forEach(b => b.classList.remove('active'))
+  document.getElementById('sec-' + id).classList.add('active')
+  btn.classList.add('active')
+}
+
+// ===================== PESO =====================
+function guardarPeso() {
+  const val = parseFloat(document.getElementById('inputPeso').value)
+  if (!val || val < 30 || val > 200) { showToast('Peso inválido'); return }
+  const fecha = hoyISO()
+  let historial = get('pesoCorporal') || []
+  historial = rellenarDiasFaltantes(historial)
+  historial = historial.filter(r => r.fecha !== fecha)
+  historial.push({ fecha, kg: val })
+  historial.sort((a, b) => a.fecha.localeCompare(b.fecha))
+  set('pesoCorporal', historial)
+  document.getElementById('inputPeso').value = ''
+  showToast('Peso guardado ✓')
+  renderPeso()
+}
+
+function rellenarDiasFaltantes(historial) {
+  if (historial.length === 0) return historial
+  const hoyDate = new Date(hoyISO())
+  let resultado = [...historial]
+  let ultimo = resultado[resultado.length - 1]
+  let fecha = new Date(ultimo.fecha)
+  fecha.setDate(fecha.getDate() + 1)
+  while (fecha < hoyDate) {
+    const iso = fecha.toISOString().split('T')[0]
+    if (!resultado.find(r => r.fecha === iso)) {
+      resultado.push({ fecha: iso, kg: ultimo.kg, auto: true })
+    }
+    fecha.setDate(fecha.getDate() + 1)
+  }
+  resultado.sort((a, b) => a.fecha.localeCompare(b.fecha))
+  return resultado
+}
+
+function renderPeso() {
+  const historial = get('pesoCorporal') || []
+
+  // Número actual
+  if (historial.length > 0) {
+    const reales = historial.filter(r => !r.auto)
+    const ultimo = reales.length > 0 ? reales[reales.length - 1] : historial[historial.length - 1]
+    document.getElementById('pesoActual').textContent = ultimo.kg.toFixed(1)
+    document.getElementById('pesoDiff').textContent = ''
+  }
+
+  // Historial lista
+  const cont = document.getElementById('historialPeso')
+  if (historial.length === 0) {
+    cont.innerHTML = '<div class="empty-state">Sin registros aún</div>'
+  } else {
+    const reversed = [...historial].reverse().slice(0, 30)
+    cont.innerHTML = reversed.map(r => {
+      const autoTag = r.auto ? '<span style="font-size:10px;color:var(--text3);margin-left:6px">auto</span>' : ''
+      const delBtn = !r.auto ? `<button class="delete-btn" onclick="borrarPeso('${r.fecha}')">✕</button>` : ''
+      return `
+        <div class="historial-item">
+          <div class="historial-fecha">${fechaLegible(r.fecha)}${autoTag}</div>
+          <div style="display:flex;align-items:center;gap:12px">
+            <span class="historial-kg" style="${r.auto ? 'color:var(--text3)' : ''}">${r.kg.toFixed(1)}</span>
+            ${delBtn}
+          </div>
+        </div>`
+    }).join('')
+  }
+
+  // Gráfica
+  dibujarGrafica(historial)
+}
+
+function borrarPeso(fecha) {
+  let historial = get('pesoCorporal') || []
+  historial = historial.filter(r => r.fecha !== fecha)
+  set('pesoCorporal', historial)
+  renderPeso()
+  showToast('Registro eliminado')
+}
+
+function dibujarGrafica(historial) {
+  const canvas = document.getElementById('graficaPeso')
+  const ctx = canvas.getContext('2d')
+  const W = canvas.parentElement.offsetWidth - 2
+  canvas.width = Math.max(W, historial.length * 40)
+  canvas.height = 140
+
+  ctx.clearRect(0, 0, canvas.width, canvas.height)
+
+  if (historial.length < 2) {
+    ctx.fillStyle = '#444'
+    ctx.font = '12px DM Sans'
+    ctx.textAlign = 'center'
+    ctx.fillText('Necesitas al menos 2 registros', canvas.width / 2, 70)
+    return
+  }
+
+  const pesos = historial.map(r => r.kg)
+  const min = Math.min(...pesos) - 1
+  const max = Math.max(...pesos) + 1
+  const padL = 40, padR = 16, padT = 16, padB = 32
+  const gW = canvas.width - padL - padR
+  const gH = canvas.height - padT - padB
+
+  const xPos = i => padL + (i / (historial.length - 1)) * gW
+  const yPos = v => padT + (1 - (v - min) / (max - min)) * gH
+
+  // Grid lines
+  ctx.strokeStyle = '#1a1a1a'
+  ctx.lineWidth = 1
+  for (let i = 0; i <= 4; i++) {
+    const y = padT + (i / 4) * gH
+    ctx.beginPath(); ctx.moveTo(padL, y); ctx.lineTo(padL + gW, y); ctx.stroke()
+    const val = max - (i / 4) * (max - min)
+    ctx.fillStyle = '#444'
+    ctx.font = '10px DM Sans'
+    ctx.textAlign = 'right'
+    ctx.fillText(val.toFixed(1), padL - 6, y + 4)
+  }
+
+  // Gradient fill
+  const grad = ctx.createLinearGradient(0, padT, 0, padT + gH)
+  grad.addColorStop(0, 'rgba(200,169,110,0.3)')
+  grad.addColorStop(1, 'rgba(200,169,110,0)')
+  ctx.beginPath()
+  ctx.moveTo(xPos(0), yPos(pesos[0]))
+  historial.forEach((_, i) => { if (i > 0) ctx.lineTo(xPos(i), yPos(pesos[i])) })
+  ctx.lineTo(xPos(historial.length - 1), padT + gH)
+  ctx.lineTo(xPos(0), padT + gH)
+  ctx.closePath()
+  ctx.fillStyle = grad
+  ctx.fill()
+
+  // Line
+  ctx.beginPath()
+  ctx.strokeStyle = '#c8a96e'
+  ctx.lineWidth = 2
+  ctx.lineJoin = 'round'
+  historial.forEach((_, i) => {
+    i === 0 ? ctx.moveTo(xPos(i), yPos(pesos[i])) : ctx.lineTo(xPos(i), yPos(pesos[i]))
+  })
+  ctx.stroke()
+
+  // Dots
+  historial.forEach((_, i) => {
+    ctx.beginPath()
+    ctx.arc(xPos(i), yPos(pesos[i]), 4, 0, Math.PI * 2)
+    ctx.fillStyle = '#c8a96e'
+    ctx.fill()
+  })
+
+  // Fechas
+  const step = Math.ceil(historial.length / 5)
+  historial.forEach((r, i) => {
+    if (i % step === 0 || i === historial.length - 1) {
+      ctx.fillStyle = '#666'
+      ctx.font = '10px DM Sans'
+      ctx.textAlign = 'center'
+      const parts = r.fecha.split('-')
+      ctx.fillText(`${parts[2]}/${parts[1]}`, xPos(i), canvas.height - 8)
+    }
+  })
+}
+
+// ===================== GYM =====================
+const RUTINA = {
+  'Torso A': ['Cable Lateral Raise', 'Wide Grip Pulldown', 'Neutral Grip Incline Press'],
+  'Torso B': ['Machine Shoulder Press', 'Upper Back Row', 'Low to High Cable Fly'],
+  'Limbs A': ['Preacher Curl', 'Reverse Curl', 'Cable Crunch', 'Tricep Pushdown', 'Leg Curl'],
+  'Limbs B': ['Barbell Curl', 'Wrist Curl', 'Crunch con Peso', 'Hip Thrust'],
+}
+
+// Ejercicios con 3 sets (prioridad alta)
+const TRES_SETS = ['Cable Lateral Raise', 'Wide Grip Pulldown', 'Machine Shoulder Press', 'Preacher Curl', 'Barbell Curl']
+
+let _tipo = 'Torso'
+let _var = 'A'
+
+function getDia() { return _tipo + ' ' + _var }
+
+function selTipo(tipo, btn) {
+  _tipo = tipo
+  document.querySelectorAll('.tipo-btn').forEach(b => b.classList.remove('active'))
+  btn.classList.add('active')
+  cargarSesion()
+}
+
+function selVar(v, btn) {
+  _var = v
+  document.querySelectorAll('.var-btn').forEach(b => b.classList.remove('active'))
+  btn.classList.add('active')
+  cargarSesion()
+}
+
+function cargarSesion() {
+  const dia = getDia()
+  const ejercicios = RUTINA[dia]
+  const cont = document.getElementById('ejerciciosContainer')
+
+  const banner = '<div style="background:var(--bg3);border:1px solid var(--accent);border-radius:8px;padding:10px 14px;margin-bottom:14px;display:flex;justify-content:space-between;align-items:center;">' +
+    '<span style="font-family:Bebas Neue,sans-serif;letter-spacing:2px;color:var(--accent);font-size:15px;">4–8 REPS · @1RIR</span>' +
+    '<span style="font-size:12px;color:var(--text2);letter-spacing:1px;">DESCANSO 2 MIN</span>' +
+    '</div>'
+
+  cont.innerHTML = banner + ejercicios.map(function(ej) {
+    const histEj = getHistEjercicio(ej)
+    const ultimoSet = histEj.length > 0 ? histEj[histEj.length - 1] : null
+    const maxKg = ultimoSet ? Math.max.apply(null, ultimoSet.sets.map(function(s){ return s.kg })) : null
+    const hint = ultimoSet ? ('Ultima vez: ' + ultimoSet.sets.map(function(s,i){ return 'S'+(i+1)+' '+s.kg+'kg x'+s.reps }).join(' - ')) : 'Sin registros'
+    const numSets = TRES_SETS.includes(ej) ? 3 : 2
+    const setTag = numSets === 3 ? '<span style="background:var(--accent);color:#000;font-size:10px;padding:2px 7px;border-radius:4px;letter-spacing:1px;">3 SETS</span>' : ''
+
+    let setsHtml = ''
+    for (let i = 0; i < numSets; i++) {
+      setsHtml += '<div class="set-row">' +
+        '<span class="set-num">S'+(i+1)+'</span>' +
+        '<input class="set-input" type="number" placeholder="kg" step="0.5" data-ej="'+ej+'" data-set="'+i+'" data-tipo="kg"' + (maxKg ? ' value="'+maxKg+'"' : '') + '>' +
+        '<span class="set-x">x</span>' +
+        '<input class="set-input" type="number" placeholder="reps" data-ej="'+ej+'" data-set="'+i+'" data-tipo="reps">' +
+        '</div>'
+    }
+
+    return '<div class="ejercicio-block">' +
+      '<div class="ejercicio-nombre" style="justify-content:space-between;">' +
+      '<span>'+ej+'</span>' + setTag +
+      '</div>' +
+      '<div style="font-size:11px;color:var(--text2);margin-bottom:10px;">'+hint+'</div>' +
+      setsHtml +
+      '</div>'
+  }).join('')
+}
+
+function getHistEjercicio(nombre) {
+  const hist = get('gymHistorial') || []
+  return hist.filter(s => s.ejercicio === nombre).sort((a, b) => a.fecha.localeCompare(b.fecha))
+}
+
+function guardarSesion() {
+  const dia = getDia()
+  const ejercicios = RUTINA[dia]
+  const fecha = hoyISO()
+  let guardados = 0
+  let hist = get('gymHistorial') || []
+
+  ejercicios.forEach(ej => {
+    const sets = []
+    const numSets = TRES_SETS.includes(ej) ? 3 : 2
+    for (let i = 0; i < numSets; i++) {
+      const kg = parseFloat(document.querySelector(`input[data-ej="${ej}"][data-set="${i}"][data-tipo="kg"]`)?.value)
+      const reps = parseInt(document.querySelector(`input[data-ej="${ej}"][data-set="${i}"][data-tipo="reps"]`)?.value)
+      if (kg && reps) sets.push({ kg, reps })
+    }
+    if (sets.length > 0) {
+      hist = hist.filter(r => !(r.ejercicio === ej && r.fecha === fecha))
+      hist.push({ ejercicio: ej, dia, fecha, sets })
+      guardados++
+    }
+  })
+
+  set('gymHistorial', hist)
+  renderHistorialGym()
+  renderGraficaEj()
+  showToast(`${guardados} ejercicios guardados ✓`)
+}
+
+function renderHistorialGym() {
+  const hist = get('gymHistorial') || []
+  const cont = document.getElementById('historialGym')
+
+  if (hist.length === 0) {
+    cont.innerHTML = '<div class="empty-state">Sin sesiones registradas</div>'
+    return
+  }
+
+  const porFecha = {}
+  hist.forEach(r => {
+    if (!porFecha[r.fecha]) porFecha[r.fecha] = []
+    porFecha[r.fecha].push(r)
+  })
+
+  const fechas = Object.keys(porFecha).sort().reverse()
+  cont.innerHTML = fechas.slice(0, 5).map(f => `
+    <div style="margin-bottom:14px;">
+      <div class="semana-badge">${fechaLegible(f)} — ${porFecha[f][0]?.dia || ''}</div>
+      ${porFecha[f].map(r => {
+        const setsStr = r.sets.map((s, i) => `S${i+1}: ${s.kg}kg×${s.reps}`).join(' · ')
+        return `<div class="progresion-row">
+          <span style="font-size:13px">${r.ejercicio}</span>
+          <span class="prog-valor" style="font-size:14px">${setsStr}</span>
+        </div>`
+      }).join('')}
+    </div>`).join('')
+}
+
+function renderGraficaEj() {
+  const nombre = document.getElementById('selectEjGrafica').value
+  const canvas = document.getElementById('graficaEj')
+  const empty = document.getElementById('graficaEjEmpty')
+  const ctx = canvas.getContext('2d')
+
+  if (!nombre) {
+    ctx.clearRect(0, 0, canvas.width, canvas.height)
+    empty.style.display = 'none'
+    return
+  }
+
+  const hist = getHistEjercicio(nombre)
+  if (hist.length < 2) {
+    ctx.clearRect(0, 0, canvas.width, canvas.height)
+    empty.style.display = 'block'
+    return
+  }
+  empty.style.display = 'none'
+
+  // Use max kg per session as the value to plot
+  const datos = hist.map(r => ({
+    fecha: r.fecha,
+    kg: Math.max(...r.sets.map(s => s.kg)),
+    reps: r.sets[0]?.reps || 0
+  }))
+
+  const W = canvas.parentElement.offsetWidth - 2
+  canvas.width = Math.max(W, datos.length * 40)
+  canvas.height = 140
+  ctx.clearRect(0, 0, canvas.width, canvas.height)
+
+  const vals = datos.map(d => d.kg)
+  const min = Math.min(...vals) - 1
+  const max = Math.max(...vals) + 1
+  const padL = 36, padR = 16, padT = 16, padB = 32
+  const gW = canvas.width - padL - padR
+  const gH = canvas.height - padT - padB
+
+  const xPos = i => padL + (i / (datos.length - 1)) * gW
+  const yPos = v => padT + (1 - (v - min) / (max - min)) * gH
+
+  // Grid
+  ctx.strokeStyle = '#1a1a1a'
+  ctx.lineWidth = 1
+  for (let i = 0; i <= 4; i++) {
+    const y = padT + (i / 4) * gH
+    ctx.beginPath(); ctx.moveTo(padL, y); ctx.lineTo(padL + gW, y); ctx.stroke()
+    ctx.fillStyle = '#444'
+    ctx.font = '10px DM Sans'
+    ctx.textAlign = 'right'
+    ctx.fillText((max - (i / 4) * (max - min)).toFixed(1) + 'kg', padL - 4, y + 4)
+  }
+
+  // Gradient fill
+  const grad = ctx.createLinearGradient(0, padT, 0, padT + gH)
+  grad.addColorStop(0, 'rgba(200,169,110,0.25)')
+  grad.addColorStop(1, 'rgba(200,169,110,0)')
+  ctx.beginPath()
+  ctx.moveTo(xPos(0), yPos(vals[0]))
+  datos.forEach((_, i) => { if (i > 0) ctx.lineTo(xPos(i), yPos(vals[i])) })
+  ctx.lineTo(xPos(datos.length - 1), padT + gH)
+  ctx.lineTo(xPos(0), padT + gH)
+  ctx.closePath()
+  ctx.fillStyle = grad
+  ctx.fill()
+
+  // Line
+  ctx.beginPath()
+  ctx.strokeStyle = '#c8a96e'
+  ctx.lineWidth = 2
+  ctx.lineJoin = 'round'
+  datos.forEach((_, i) => {
+    i === 0 ? ctx.moveTo(xPos(i), yPos(vals[i])) : ctx.lineTo(xPos(i), yPos(vals[i]))
+  })
+  ctx.stroke()
+
+  // Dots + tooltip values
+  datos.forEach((d, i) => {
+    // Check if PR (highest so far)
+    const isPR = vals[i] === Math.max(...vals.slice(0, i + 1)) && i > 0
+    ctx.beginPath()
+    ctx.arc(xPos(i), yPos(vals[i]), isPR ? 6 : 4, 0, Math.PI * 2)
+    ctx.fillStyle = isPR ? '#fff' : '#c8a96e'
+    ctx.fill()
+    if (isPR) {
+      ctx.strokeStyle = '#c8a96e'
+      ctx.lineWidth = 2
+      ctx.stroke()
+    }
+  })
+
+  // Fechas
+  const step = Math.ceil(datos.length / 5)
+  datos.forEach((d, i) => {
+    if (i % step === 0 || i === datos.length - 1) {
+      ctx.fillStyle = '#666'
+      ctx.font = '10px DM Sans'
+      ctx.textAlign = 'center'
+      const parts = d.fecha.split('-')
+      ctx.fillText(`${parts[2]}/${parts[1]}`, xPos(i), canvas.height - 8)
+    }
+  })
+}
+
+// ===================== SUPLEMENTOS =====================
+function diasEntre(fechaA, fechaB) {
+  const a = new Date(fechaA)
+  const b = new Date(fechaB)
+  return Math.max(0, Math.floor((b - a) / (1000 * 60 * 60 * 24)))
+}
+
+function descontarDiasTranscurridos() {
+  const sups = get('suplementos') || {}
+  const hoy = hoyISO()
+  let cambio = false
+
+  Object.entries(sups).forEach(([key, s]) => {
+    const dias = diasEntre(s.lastDescuento, hoy)
+    if (dias > 0) {
+      sups[key].restante = Math.max(0, s.restante - (s.consumoDia * dias))
+      sups[key].lastDescuento = hoy
+      cambio = true
+    }
+  })
+
+  if (cambio) set('suplementos', sups)
+}
+
+function renderSuplem() {
+  const sups = get('suplementos') || {}
+  const cont = document.getElementById('suplementosContainer')
+
+  cont.innerHTML = Object.entries(sups).map(([key, s]) => {
+    const diasRestantes = Math.floor(s.restante / s.consumoDia)
+
+    let clase = 'ok'
+    if (diasRestantes <= 7) clase = 'alert'
+    else if (diasRestantes <= 14) clase = 'warn'
+
+    return `
+      <div class="suplem-item">
+        <div>
+          <div class="suplem-nombre">${s.nombre}</div>
+          <div class="suplem-info">${s.restante.toFixed(0)} ${s.unidad} restantes · ${s.consumoDia}${s.unidad}/día</div>
+        </div>
+        <div>
+          <div class="suplem-dias ${clase}">${diasRestantes}</div>
+          <div class="suplem-label">días</div>
+        </div>
+      </div>`
+  }).join('')
+}
+
+function actualizarSuplem() {
+  const key = document.getElementById('selectSuplem').value
+  const val = parseFloat(document.getElementById('inputStockSuplem').value)
+  if (!val || val < 0) { showToast('Cantidad inválida'); return }
+
+  const sups = get('suplementos') || {}
+  sups[key].restante = val
+  sups[key].lastDescuento = hoyISO()
+  set('suplementos', sups)
+  renderSuplem()
+  document.getElementById('inputStockSuplem').value = ''
+  showToast('Stock actualizado ✓')
+}
+
+// Render gym historial on load
+window.addEventListener('load', () => { renderHistorialGym(); cargarSesion(); })
+</script>
+</body>
+</html>
